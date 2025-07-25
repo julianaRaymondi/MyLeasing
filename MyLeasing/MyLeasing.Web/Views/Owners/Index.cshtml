@@ -1,0 +1,48 @@
+﻿@model IEnumerable<MyLeasing.Web.Data.Entities.Owners>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Owners</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().Document)</th>
+           
+            <th>@Html.DisplayNameFor(model => model.First().OwnerName)</th>
+            <th>@Html.DisplayNameFor(model => model.First().FixedPhone)</th>
+            <th>@Html.DisplayNameFor(model => model.First().CellPhone)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Address)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Document)</td>
+               
+                <td>@Html.DisplayFor(modelItem => item.OwnerName)</td>
+                <td>@Html.DisplayFor(modelItem => item.FixedPhone)</td>
+                <td>@Html.DisplayFor(modelItem => item.CellPhone)</td>
+                <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Document">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Document">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Document">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+<div>
+    <p>© 2022 - MyLeasing</p>
+</div>
+
