@@ -12,29 +12,34 @@ namespace MyLeasing.Web.Controllers
 {
     public class OwnersController : Controller
     {
-        private readonly DataContext _context;
+        //private readonly DataContext _context;
+        private readonly IRepository _repository;
 
-        public OwnersController(DataContext context)
+        public OwnersController(IRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET: Owners
-        public async Task<IActionResult> Index()
+        // public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Owners.ToListAsync());
+            //return View(await _context.Owners.ToListAsync());
+            return View(_repository.GetOwner());
         }
 
         // GET: Owners/Details/5
-        public async Task<IActionResult> Details(string id)
+        //public async Task<IActionResult> Details(string id)
+         public IActionResult Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var owners = await _context.Owners
-                .FirstOrDefaultAsync(m => m.Document == id);
+            // var owners = await _context.Owners
+            // .FirstOrDefaultAsync(m => m.Document == id);
+            var owners = _repository.GetOwner(id);
             if (owners == null)
             {
                 return NotFound();
@@ -58,25 +63,43 @@ namespace MyLeasing.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (!ModelState.IsValid)
+                {
+                    return View(owners);
+                }
+
+                // Verifica se já existe um Owner com o mesmo Document
+                if (_repository.OwnerExists(owners.Document))
+                {
+                    ModelState.AddModelError(string.Empty, "Já existe um proprietário com este número de documento.");
+                    return View(owners);
+                }
+
                 // Concatena FirstName e LastName no OwnerName
                 owners.OwnerName = $"{owners.FirstName} {owners.LastName}";
 
-                _context.Add(owners); // Só isso é suficiente para criação
-                await _context.SaveChangesAsync();
+                //_context.Add(owners); // Só isso é suficiente para criação
+                //await _context.SaveChangesAsync();
+                //return RedirectToAction(nameof(Index));
+                _repository.AddOwner(owners);
+                await _repository.SaveAllAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(owners);
         }
 
         // GET: Owners/Edit/5
-        public async Task<IActionResult> Edit(string id)
+       // public async Task<IActionResult> Edit(string id)
+            public IActionResult Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var owners = await _context.Owners.FindAsync(id);
+            // var owners = await _context.Owners.FindAsync(id);
+            var owners =  _repository.GetOwner(id);
             if (owners == null)
             {
                 return NotFound();
@@ -103,13 +126,18 @@ namespace MyLeasing.Web.Controllers
                     // Atualiza OwnerName com FirstName + LastName
                     owners.OwnerName = $"{owners.FirstName} {owners.LastName}";
 
-                    _context.Update(owners);
-                    await _context.SaveChangesAsync();
+                   // _context.Update(owners);
+                    //await _context.SaveChangesAsync();
+
+                    _repository.UpdateOwner(owners);
+                    await _repository.SaveAllAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Owners.Any(e => e.Document == owners.Document))
+                    // if (!_context.Owners.Any(e => e.Document == owners.Document))
+                    if (!_repository.OwnerExists(owners.Document))
                     {
+                        
                         return NotFound();
                     }
                     else
@@ -124,15 +152,17 @@ namespace MyLeasing.Web.Controllers
         }
 
         // GET: Owners/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        //public async Task<IActionResult> Delete(string id)
+        public IActionResult Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var owners = await _context.Owners
-                .FirstOrDefaultAsync(m => m.Document == id);
+            var owners = _repository.GetOwner(id);
+            //var owners = await _context.Owners
+               // .FirstOrDefaultAsync(m => m.Document == id);
             if (owners == null)
             {
                 return NotFound();
@@ -146,15 +176,18 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var owners = await _context.Owners.FindAsync(id);
-            _context.Owners.Remove(owners);
-            await _context.SaveChangesAsync();
+            //var owners = await _context.Owners.FindAsync(id);
+            // _context.Owners.Remove(owners);
+           // await _context.SaveChangesAsync();
+            var owners = _repository.GetOwner(id);
+            _repository.RemoveOwner(owners);
+            await _repository.SaveAllAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool OwnersExists(string id)
+       /* private bool OwnersExists(string id)
         {
             return _context.Owners.Any(e => e.Document == id);
-        }
+        }*/
     }
 }
