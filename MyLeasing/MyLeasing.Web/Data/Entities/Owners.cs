@@ -2,9 +2,9 @@
 
 namespace MyLeasing.Web.Data.Entities
 {
-    public class Owners
+    public class Owners : IEntity
     {
-        [Key]
+        [Key] 
         [Required(ErrorMessage = "Document is required")]
         [StringLength(8, MinimumLength = 8, ErrorMessage = "Document must be exactly 8 digits")]
         [Display(Name = "Document*")]
